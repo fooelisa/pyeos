@@ -202,6 +202,30 @@ class EOS:
         else:
             raise exceptions.CommandError(result[1]['messages'][0])
 
+    def merge_config(self, config=None, force=False):
+        """
+        Applies the configuration changes on the device. You can either commit the changes on the candidate_config
+        attribute or you can send the desired configuration as a string. Note that the current configuration of the
+        device is merged with the new configuration.
+
+        :param config: String containing the desired configuration. If set to None the candidate_config will be used
+
+        """
+        if config is None:
+            config = self.candidate_config.to_string()
+
+        body = {
+            'cmd': 'configure',
+            'input': config
+        }
+        self.original_config = self.get_config(format='text')
+        result = self.run_commands([body])
+
+        if 'Invalid' not in result[1]['messages'][0]:
+            return result
+        else:
+            raise exceptions.CommandError(result[1]['messages'][0])
+
     def rollback(self):
         """
         If used after a commit, the configuration will be reverted to the previous state.

@@ -30,10 +30,13 @@ DOCUMENTATION = '''
 module: eos_install_config
 author: David Barroso <dbarroso@spotify.net>
 version_added: "1.0.0"
-short_description: Replaces the configuration taken from a file on a device running EOS.
+short_description: 
+    Takes configuration from a file oiand loads it onto a device running EOS.
 description:
-    This library will take the configuration from a file and load it into a device running EOS. The old configuration
-    will be replaced using the feature 'config replace terminal: force'. The use this module you need to enable access
+    This library will take the configuration from a file and load it into a 
+    device running EOS. The old configuration will be either replaced by 
+    using the feature 'config replace terminal: force', or merged with the 
+    running configuration. To use this module you need to enable access
     to the device via the eAPI.
 
 requirements:
@@ -42,26 +45,39 @@ requirements:
 options:
     hostname:
         description: IP or FQDN of the device you want to connect to
-        required: true
+        required: True
     username:
         description: Username
-        required: true
+        required: True
     password:
         description: Password
-        required: true
+        required: True
     use_ssl:
-        description: If set to True we will connect via https, if False we will use http instead. Default is True.
-        required: false
+        description:
+            If set to True we will connect via https, if False we will use 
+            http instead. Default is True.
+        required: False
     config_file:
-        description: Where to load the configuration from.
-        required: true
+        description: 
+            File to load the configuration from.
+        required: True
     commit_changes:
-        description: If set to True the configuration will be actually replaced. If the set to False, we will not
-                     apply the changes, just check the differences.
-        required: true
+        description: 
+            If set to True the commit will be performed. If set to False,
+            we will not apply the changes, only check the differences.
+            Default: False.
+        required: False
+    replace_config:
+        description:
+            If set to True the entire configuration on the device will be
+            replaced during the commit. If set to False, we will merge the
+            new config with the existing one. Default: False.
+        required: False
     diff_file:
-        description: A file where to store the "diff" between the running configuration and the new configuration. If
-                     it's not set the diff between configurations is not saved.
+        description:
+            A file where to store the "diff" between the running 
+            configuration and the new configuration. If it's not set the 
+            diff between configurations is not saved.
         required: False
 '''
 
@@ -79,7 +95,8 @@ EXAMPLES = '''
         password=p4ssw0rd
         use_ssl=False
         config_file=~/spotify/network-ansible/compiled/{{ inventory_hostname }}/running.conf
-        commit_changes={{commit_changes}}
+        commit_changes={{ commit_changes }}
+        replace_config={{ replace_config }}
         diff_file=logs/{{ inventory_hostname }}.log
 
     From the CLI we would trigger the playbook like:
@@ -107,7 +124,8 @@ def main():
             password=dict(required=True),
             use_ssl=dict(required=False, default=True),
             config_file=dict(required=True),
-            commit_changes=dict(required=True),
+            commit_changes=dict(required=False, default=False),
+            replace_config=dict(required=False, default=False),
             diff_file=dict(required=False, default=None),
         ),
         supports_check_mode=True
@@ -120,10 +138,13 @@ def main():
 
     config_file = module.params['config_file']
     commit_changes = module.params['commit_changes']
+    replace_config = module.params['replace_config']
     diff_file = module.params['diff_file']
 
     if commit_changes.__class__ is str:
         commit_changes = ast.literal_eval(commit_changes)
+    if replace_config.__class__ is str:
+        replace_config = ast.literal_eval(replace_config)
     if use_ssl.__class__ is str:
         use_ssl = ast.literal_eval(use_ssl)
 
@@ -142,7 +163,10 @@ def main():
         module.exit_json(changed=False, msg=diff)
     else:
         if len(diff) > 0:
-            device.replace_config()
+            if replace_config:
+                device.replace_config()
+            else:
+                device.merge_config()
         module.exit_json(changed=changed, msg=diff)
 
     logger.info('DEVICE=%s CHANGED=%s STATUS=%s' % (hostname, len(changed.splitlines())), 'OK')
