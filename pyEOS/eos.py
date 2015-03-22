@@ -157,16 +157,28 @@ class EOS:
         else:
             self.candidate_config.load_config(config=config)
 
-    def compare_config(self):
+    def compare_replace_config(self):
         """
 
-        :return: A string showing the difference between the running_config and the candidate_config. The running_config is
-            loaded automatically just before doing the comparison so there is no neeed for you to do it.
+        :return: A string showing the difference between the running_config 
+            and the candidate_config, assuming the entire running conf will be
+            replaced by the candidate. The running_config is loaded 
+            automatically just before doing the comparison so there is no 
+            neeed for you to do it.
         """
 
         # We get the config in text format because you get better printability by parsing and using an OrderedDict
         self.load_running_config()
         return self.running_config.compare_config(self.candidate_config)
+
+    def compare_merge_config(self):
+        """
+
+        :return: A string showing the commands that are going to be applied 
+            to the router.
+        """
+
+        return self.candidate_config
 
     def replace_config(self, config=None, force=False):
         """
@@ -198,7 +210,7 @@ class EOS:
         else:
             raise exceptions.CommandError(result[1]['messages'][0])
 
-    def merge_config(self, config=None, force=False):
+    def merge_config(self, config=None):
         """
         Applies the configuration changes on the device. You can either commit the changes on the candidate_config
         attribute or you can send the desired configuration as a string. Note that the current configuration of the
@@ -210,12 +222,11 @@ class EOS:
         if config is None:
             config = self.candidate_config.to_string()
 
-        body = {
-            'cmd': 'configure',
-            'input': config
-        }
-        self.original_config = self.get_config(format='text')
-        result = self.run_commands([body])
+        commands = config.split('\n')
+        if 'configure' is not commands[0]:
+            commands.insert(0, 'configure')
+
+        result = self.run_commands([commands])
 
         if 'Invalid' not in result[1]['messages'][0]:
             return result
