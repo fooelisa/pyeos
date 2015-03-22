@@ -152,8 +152,9 @@ def main():
     device.open()
     device.load_candidate_config(filename=config_file)
 
-    #content of the
-    diff = device.compare_config()
+    diff = device.compare_merge_config()
+    if replace_config:
+        diff = device.compare_replace_config()
     changed = len(diff) > 0
 
     if diff_file is not None:
