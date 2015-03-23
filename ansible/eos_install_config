@@ -31,7 +31,7 @@ module: eos_install_config
 author: David Barroso <dbarroso@spotify.net>
 version_added: "1.0.0"
 short_description: 
-    Takes configuration from a file oiand loads it onto a device running EOS.
+    Takes configuration from a file and loads it onto a device running EOS.
 description:
     This library will take the configuration from a file and load it into a 
     device running EOS. The old configuration will be either replaced by 
@@ -45,40 +45,40 @@ requirements:
 options:
     hostname:
         description: IP or FQDN of the device you want to connect to
-        required: True
+        required: true
     username:
         description: Username
-        required: True
+        required: true
     password:
         description: Password
-        required: True
+        required: true
     use_ssl:
         description:
-            If set to True we will connect via https, if False we will use 
-            http instead. Default is True.
-        required: False
+            If set to true we will connect via https, if false we will use
+            http instead. Default is true.
+        required: false
     config_file:
         description: 
             File to load the configuration from.
-        required: True
+        required: true
     commit_changes:
         description: 
-            If set to True the commit will be performed. If set to False,
+            If set to true the commit will be performed. If set to false,
             we will not apply the changes, only check the differences.
-            Default: False.
-        required: False
+            Default: false.
+        required: false
     replace_config:
         description:
-            If set to True the entire configuration on the device will be
-            replaced during the commit. If set to False, we will merge the
-            new config with the existing one. Default: False.
-        required: False
+            If set to true the entire configuration on the device will be
+            replaced during the commit. If set to false, we will merge the
+            new config with the existing one. Default: false.
+        required: false
     diff_file:
         description:
             A file where to store the "diff" between the running 
             configuration and the new configuration. If it's not set the 
-            diff between configurations is not saved.
-        required: False
+            diff between configurations is not saved. Default: none.
+        required: false
 '''
 
 EXAMPLES = '''
@@ -93,7 +93,7 @@ EXAMPLES = '''
         hostname={{ inventory_hostname }}
         username=admin
         password=p4ssw0rd
-        use_ssl=False
+        use_ssl=false
         config_file=~/spotify/network-ansible/compiled/{{ inventory_hostname }}/running.conf
         commit_changes={{ commit_changes }}
         replace_config={{ replace_config }}
