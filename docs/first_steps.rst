@@ -309,7 +309,7 @@ Or just check an interface configuration::
 You can also read configuration from a file, compare the running config with the candidate config::
 
     >>> device.load_candidate_config('tests/config.txt')
-    >>> print device.compare_config()
+    >>> print device.compare_replace_config()
     + hostname NEWHOSTNAME
     - hostname eapi-lab
     interface Ethernet1
@@ -321,7 +321,7 @@ You can commit the configuration if you are happy::
 
     >>> device.commit()
     [{u'_meta': {u'execStartTime': 1418660581.91, u'execDuration': 0.00144815444946}}, {u'messages': [u"enter input line by line; when done enter one or more control-d\n! Preserving static routes.  Use 'no ip routing delete-static-routes' to clear them.\n! Preserving static routes.  Use 'no ip routing delete-static-routes' to clear them.\n"], u'_meta': {u'execStartTime': 1418660581.91, u'execDuration': 9.50796413422}}]
-    >>> print device.compare_config()
+    >>> print device.compare_replace_config()
 
     >>>
 
@@ -329,7 +329,7 @@ And even rollback if you regret it::
 
     >>> device.rollback()
     [{u'_meta': {u'execStartTime': 1418660622.75, u'execDuration': 0.00146913528442}}, {u'messages': [u"enter input line by line; when done enter one or more control-d\n! Preserving static routes.  Use 'no ip routing delete-static-routes' to clear them.\n! Preserving static routes.  Use 'no ip routing delete-static-routes' to clear them.\n"], u'_meta': {u'execStartTime': 1418660622.75, u'execDuration': 9.6508910656}}]
-    >>> print device.compare_config()
+    >>> print device.compare_replace_config()
     + hostname NEWHOSTNAME
     - hostname eapi-lab
     interface Ethernet1
