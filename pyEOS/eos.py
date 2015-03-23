@@ -27,7 +27,8 @@ class EOS:
         The object will contain the following interesting attributes:
 
         * **running_config** - The configuration retrieved from the device using the method load_running_config
-        * **candidate_config** - The configuration we desire for the device. Can be populated using the method load_candidate_config
+        * **candidate_config** - The configuration we desire for the device. Can be populated using the method
+            load_candidate_config
 
         :param hostname: IP or FQDN of the device you want to connect to
         :param username: Username
@@ -71,9 +72,13 @@ class EOS:
 
         :param commands: List of commands you want to run
         :param version: Version of the eAPI you want to connect to. By default is 1.
-        :param auto_format: If set to True API calls not supporting returning JSON messages will be converted automatically to text. By default is False.
-        :param format: Format you want to get; 'json' or 'text'. By default is json. This will trigger a CommandUnconverted exception if set to 'json' and auto_format is set to False. It will return text if set to 'json' but auto_format is set to True.
-        :param timestamps: This will return some useful information like when was the command executed and how long it took.
+        :param auto_format: If set to True API calls not supporting returning JSON messages will be converted
+            automatically to text. By default it is False.
+        :param format: Format you want to get; 'json' or 'text'. By default it is json. This will trigger a
+            CommandUnconverted exception if set to 'json' and auto_format is set to False. It will return text if set
+            to 'json' but auto_format is set to True.
+        :param timestamps: This will return some useful information like when was the command executed and how long
+            it took.
 
         """
 
@@ -117,11 +122,15 @@ class EOS:
             else:
                 raise exceptions.UnknownError((code, error))
 
-        return result
+        if 'Invalid' not in result[1]['messages'][0]:
+            return result
+        else:
+            raise exceptions.CommandError(result[1]['messages'][0])
 
     def close(self):
         """
-        Dummy, method. Today it does not do anything but it would be interesting to use it to fake closing a connection.
+        Dummy, method. Today it does not do anything but it would be interesting to use it to fake closing a
+        connection.
 
         """
         pass
@@ -146,9 +155,10 @@ class EOS:
     def load_candidate_config(self, filename=None, config=None):
         """
         Populates the attribute candidate_config with the desired configuration. You can populate it from a file or
-        from a string. If you send both a filename and a string containing the configuration, the file takes precedence.
+        from a string. If you send both a filename and a string containing the configuration, the file takes
+        precedence.
 
-        :param filename: Path to the file containing the desired configuration. By default is None.
+        :param filename: Path to the file containing the desired configuration. By default it is None.
         :param config: String containing the desired configuration.
         """
 
@@ -160,11 +170,9 @@ class EOS:
     def compare_replace_config(self):
         """
 
-        :return: A string showing the difference between the running_config 
-            and the candidate_config, assuming the entire running conf will be
-            replaced by the candidate. The running_config is loaded 
-            automatically just before doing the comparison so there is no 
-            neeed for you to do it.
+        :return: A string showing the difference between the running_config and the candidate_config, assuming the
+            entire running conf will be replaced by the candidate. The running_config is loaded automatically just
+            before doing the comparison so there is no neeed for you to do it.
         """
 
         # We get the config in text format because you get better printability by parsing and using an OrderedDict
@@ -196,19 +204,14 @@ class EOS:
         if force:
             force_text = 'force'
         else:
-            force_text = 'no-force'
+            force_text = ''
 
         body = {
             'cmd': 'configure replace terminal: %s' % force_text,
             'input': config
         }
         self.original_config = self.get_config(format='text')
-        result = self.run_commands([body])
-
-        if 'Invalid' not in result[1]['messages'][0]:
-            return result
-        else:
-            raise exceptions.CommandError(result[1]['messages'][0])
+        return self.run_commands([body])
 
     def merge_config(self, config=None):
         """
@@ -226,12 +229,7 @@ class EOS:
         if 'configure' is not commands[0]:
             commands.insert(0, 'configure')
 
-        result = self.run_commands([commands])
-
-        if 'Invalid' not in result[1]['messages'][0]:
-            return result
-        else:
-            raise exceptions.CommandError(result[1]['messages'][0])
+        return self.run_commands([commands])
 
     def rollback(self):
         """
