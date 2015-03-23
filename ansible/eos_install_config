@@ -124,7 +124,7 @@ def main():
             password=dict(required=True),
             use_ssl=dict(required=False, default=True),
             config_file=dict(required=True),
-            commit_changes=dict(required=False, default=False),
+            commit_changes=dict(required=True),
             replace_config=dict(required=False, default=False),
             diff_file=dict(required=False, default=None),
         ),
