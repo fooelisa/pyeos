@@ -107,7 +107,6 @@ def main():
             use_ssl=dict(required=False, default=True),
             config_file=dict(required=True),
             commit_changes=dict(required=True),
-            replace_config=dict(required=False, default=False),
             diff_file=dict(required=False, default=None),
         ),
         supports_check_mode=True
@@ -120,13 +119,10 @@ def main():
 
     config_file = module.params['config_file']
     commit_changes = module.params['commit_changes']
-    replace_config = module.params['replace_config']
     diff_file = module.params['diff_file']
 
     if commit_changes.__class__ is str:
         commit_changes = ast.literal_eval(commit_changes)
-    if replace_config.__class__ is str:
-        replace_config = ast.literal_eval(replace_config)
     if use_ssl.__class__ is str:
         use_ssl = ast.literal_eval(use_ssl)
 
@@ -144,10 +140,7 @@ def main():
         module.exit_json(changed=False, msg=diff)
     else:
         if len(diff) > 0:
-            if replace_config:
-                device.replace_config()
-            else:
-                device.merge_config()
+            device.replace_config()
         module.exit_json(changed=changed, msg=diff)
 
     logger.info('DEVICE=%s CHANGED=%s STATUS=%s' % (hostname, len(changed.splitlines())), 'OK')

@@ -125,7 +125,7 @@ class EOS:
                 raise exceptions.ConfigReplaceError(e)
             else:
                 raise exceptions.UnknownError((code, error))
-                
+
         return result
 
     def close(self):
