@@ -128,7 +128,6 @@ class EOS:
                 
         return result
 
-
     def close(self):
         """
         Dummy, method. Today it does not do anything but it would be interesting to use it to fake closing a
@@ -169,7 +168,7 @@ class EOS:
         else:
             self.candidate_config.load_config(config=config)
 
-    def compare_replace_config(self):
+    def compare_config(self):
         """
 
         :return: A string showing the difference between the running_config and the candidate_config, assuming the
@@ -180,15 +179,6 @@ class EOS:
         # We get the config in text format because you get better printability by parsing and using an OrderedDict
         self.load_running_config()
         return self.running_config.compare_config(self.candidate_config)
-
-    def compare_merge_config(self):
-        """
-
-        :return: A string showing the commands that are going to be applied 
-            to the router.
-        """
-
-        return self.candidate_config
 
     def replace_config(self, config=None, force=False):
         """
@@ -219,24 +209,6 @@ class EOS:
             return result
         else:
             raise exceptions.CommandError(result[1]['messages'][0])
-
-    def merge_config(self, config=None):
-        """
-        Applies the configuration changes on the device. You can either commit the changes on the candidate_config
-        attribute or you can send the desired configuration as a string. Note that the current configuration of the
-        device is merged with the new configuration.
-
-        :param config: String containing the desired configuration. If set to None the candidate_config will be used
-
-        """
-        if config is None:
-            config = self.candidate_config.to_string()
-
-        commands = config.split('\n')
-        if 'configure' is not commands[0]:
-            commands.insert(0, 'configure')
-
-        return self.run_commands([commands])
 
     def rollback(self):
         """

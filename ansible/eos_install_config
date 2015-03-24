@@ -32,8 +32,8 @@ author: David Barroso <dbarroso@spotify.net>
 version_added: "1.0.0"
 short_description: Takes configuration from a file and loads it onto a device running EOS.
 description: This library will take the configuration from a file and load it into a device running EOS. The old 
-    configuration will be either replaced by using the feature 'config replace terminal: force', or merged with the 
-    running configuration. To use this module you need to enable access to the device via the eAPI.
+    configuration will be replaced by using the feature 'config replace terminal: force'. To use this module you 
+    need to enable access to the device via the eAPI.
 
 requirements:
     - pyEOS
@@ -58,10 +58,6 @@ options:
         description: If set to true the commit will be performed. If set to false, we will not apply the changes, 
             only check the differences. Default: false.
         required: false
-    replace_config:
-        description: If set to true the entire configuration on the device will be replaced during the commit. If 
-            set to false, we will merge the new config with the existing one. Default: false.
-        required: false
     diff_file:
         description: A file where to store the "diff" between the running configuration and the new configuration.
             If it's not set the diff between configurations is not saved. Default: none.
@@ -83,7 +79,6 @@ EXAMPLES = '''
         use_ssl=false
         config_file=~/spotify/network-ansible/compiled/{{ inventory_hostname }}/running.conf
         commit_changes={{ commit_changes }}
-        replace_config={{ replace_config }}
         diff_file=logs/{{ inventory_hostname }}.log
 
     From the CLI we would trigger the playbook like:
@@ -139,9 +134,7 @@ def main():
     device.open()
     device.load_candidate_config(filename=config_file)
 
-    diff = device.compare_merge_config()
-    if replace_config:
-        diff = device.compare_replace_config()
+    diff = device.compare_config()
     changed = len(diff) > 0
 
     if diff_file is not None:
