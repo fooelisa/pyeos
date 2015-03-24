@@ -125,11 +125,9 @@ class EOS:
                 raise exceptions.ConfigReplaceError(e)
             else:
                 raise exceptions.UnknownError((code, error))
+                
+        return result
 
-        if 'Invalid' not in result[1]['messages'][0]:
-            return result
-        else:
-            raise exceptions.CommandError(result[1]['messages'][0])
 
     def close(self):
         """
@@ -215,7 +213,12 @@ class EOS:
             'input': config
         }
         self.original_config = self.get_config(format='text')
-        return self.run_commands([body])
+        result = self.run_commands([body])
+
+        if 'Invalid' not in result[1]['messages'][0]:
+            return result
+        else:
+            raise exceptions.CommandError(result[1]['messages'][0])
 
     def merge_config(self, config=None):
         """
