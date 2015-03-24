@@ -58,21 +58,21 @@ class TestEOS(unittest.TestCase):
     def test_loading_config(self):
         self.device.load_candidate_config(filename=config.config_file_1)
         self.device.replace_config()
-        diff = self.device.compare_replace_config()
+        diff = self.device.compare_config()
         self.assertEqual(len(diff), 0)
 
     def test_loading_modified_config_and_diff(self):
         self.device.load_candidate_config(filename=config.config_file_2)
-        diff = self.device.compare_replace_config()
+        diff = self.device.compare_config()
         self.assertGreater(len(diff), 0)
 
     def test_loading_modified_config_replace_config_and_rollback(self):
         self.device.load_candidate_config(filename=config.config_file_2)
-        orig_diff = self.device.compare_replace_config()
+        orig_diff = self.device.compare_config()
         self.device.replace_config()
-        replace_config_diff = self.device.compare_replace_config()
+        replace_config_diff = self.device.compare_config()
         self.device.rollback()
-        last_diff = self.device.compare_replace_config()
+        last_diff = self.device.compare_config()
 
         result = (orig_diff == last_diff) and ( len(replace_config_diff) == 0 )
 
