@@ -32,8 +32,8 @@ author: David Barroso <dbarroso@spotify.net>
 version_added: "1.0.0"
 short_description: Takes configuration from a file and loads it onto a device running EOS.
 description: This library will take the configuration from a file and load it into a device running EOS. The old 
-    configuration will be either replaced by using the feature 'config replace terminal: force', or merged with the 
-    running configuration. To use this module you need to enable access to the device via the eAPI.
+    configuration will be replaced by using the feature 'config replace terminal: force'. To use this module you 
+    need to enable access to the device via the eAPI.
 
 requirements:
     - pyEOS
@@ -140,7 +140,7 @@ def main():
         module.exit_json(changed=False, msg=diff)
     else:
         if len(diff) > 0:
-            device.merge_config()
+            device.replace_config()
         module.exit_json(changed=changed, msg=diff)
 
     logger.info('DEVICE=%s CHANGED=%s STATUS=%s' % (hostname, len(changed.splitlines())), 'OK')
